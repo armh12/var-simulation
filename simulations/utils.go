@@ -1,11 +1,22 @@
 package simulations
 
-type Number interface {
-	int | int8 | int16 | int32 | int64 | uint | uint8 | uint16 | uint32 | uint64 | uintptr | float32 | float64
-}
+import (
+	"fmt"
+	"math/rand"
+	"reflect"
+)
 
-type Function func(x float64) float64
+func PseudoNumberGenerator[T Number](lowerLimit, upperLimit T) (float64, error) {
+	lowerValue := reflect.ValueOf(lowerLimit)
+	upperValue := reflect.ValueOf(upperLimit)
 
-func pseudoNumberGenerator[T Number](lowerLimit, upperLimit T) float64 {
-	return 0.0
+	if lowerValue.Kind() != reflect.Int && lowerValue.Kind() != reflect.Float64 ||
+		upperValue.Kind() != reflect.Int && upperValue.Kind() != reflect.Float64 {
+		return 0, fmt.Errorf("unsupported type for lowerLimit or upperLimit")
+	}
+
+	lowerFloat := lowerValue.Float()
+	upperFloat := upperValue.Float()
+	x := lowerFloat + rand.Float64()*(upperFloat-lowerFloat)
+	return x, nil
 }
