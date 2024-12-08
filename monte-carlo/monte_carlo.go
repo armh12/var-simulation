@@ -1,12 +1,17 @@
-package simulations
+package monte_carlo
+
+import (
+	"var-simulation/types"
+	"var-simulation/utils"
+)
 
 type MonteCarloSimulation struct {
 	upperLimit float64
 	lowerLimit float64
-	function   Function
+	function   types.Function
 }
 
-func NewMonteCarloSimulation[T Number](upperLimit, lowerLimit T, function Function) *MonteCarloSimulation {
+func NewMonteCarloSimulation[T types.Number](upperLimit, lowerLimit T, function types.Function) *MonteCarloSimulation {
 	return &MonteCarloSimulation{
 		upperLimit: float64(upperLimit),
 		lowerLimit: float64(lowerLimit),
@@ -22,7 +27,7 @@ func (m MonteCarloSimulation) simulateRandomValue(nPoints int) (*float64, error)
 	function := m.function
 	totalSum := 0.0
 	for i := 0; i < nPoints; i++ {
-		x, err := PseudoNumberGenerator(m.lowerLimit, m.upperLimit)
+		x, err := utils.PseudoNumberGenerator(m.lowerLimit, m.upperLimit)
 		if err != nil {
 			return nil, err
 		}

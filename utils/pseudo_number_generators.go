@@ -1,12 +1,13 @@
-package simulations
+package utils
 
 import (
 	"fmt"
 	"math/rand"
 	"reflect"
+	"var-simulation/types"
 )
 
-func PseudoNumberGenerator[T Number](lowerLimit, upperLimit T) (float64, error) {
+func PseudoNumberGenerator[T types.Number](lowerLimit, upperLimit T) (float64, error) {
 	lowerValue := reflect.ValueOf(lowerLimit)
 	upperValue := reflect.ValueOf(upperLimit)
 
