@@ -16,8 +16,8 @@ func PseudoNumberGenerator[T types.Number](lowerLimit, upperLimit T) (float64, e
 		return 0, fmt.Errorf("unsupported type for lowerLimit or upperLimit")
 	}
 
-	lowerFloat := lowerValue.Float()
-	upperFloat := upperValue.Float()
+	lowerFloat := float64(lowerLimit)
+	upperFloat := float64(upperLimit)
 	x := lowerFloat + rand.Float64()*(upperFloat-lowerFloat)
 	return x, nil
 }
