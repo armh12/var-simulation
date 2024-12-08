@@ -1,4 +1,4 @@
-package monte_carlo
+package simulations
 
 import (
 	"var-simulation/types"
@@ -36,12 +36,12 @@ func (m MonteCarloSimulation) simulateRandomValue(nPoints int) (*float64, error)
 	return &totalSum, nil
 }
 
-func (m MonteCarloSimulation) Integrate(nPoints int) (*float64, error) {
+func (m MonteCarloSimulation) Simulate(nPoints int) (*float64, error) {
 	totalSum, err := m.simulateRandomValue(nPoints)
 	if err != nil {
 		return nil, err
 	}
 	limitRange := m.limitRange()
-	integrationValue := (limitRange / float64(nPoints)) * *totalSum
-	return &integrationValue, nil
+	simulationValue := (limitRange / float64(nPoints)) * *totalSum
+	return &simulationValue, nil
 }

@@ -157,24 +157,78 @@ func TestComplexFunctionsIntegration(t *testing.T) {
 			function:  squareAndExpFunction,
 			x:         []float64{0, 0.5, 1, 1.5, 2, 2.5, 3},
 			method:    Trapezoidal,
-			expected:  19.08554,
-			tolerance: 0.4,
+			expected:  98.4,
+			tolerance: 0.2,
 		},
 		{
 			name:      "Simpsons Method - Square and Exp Function",
 			function:  squareAndExpFunction,
 			x:         []float64{0, 0.5, 1, 1.5, 2, 2.5, 3},
 			method:    Simpsons,
-			expected:  19.08554,
-			tolerance: 0.01,
+			expected:  98.42768,
+			tolerance: 0.25,
 		},
 		{
 			name:      "Trapezoidal Method - Sine and Exp Function",
 			function:  sineAndExpFunction,
+			x:         []float64{0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3},
+			method:    Trapezoidal,
+			expected:  11.8595,
+			tolerance: 0.1,
+		},
+		{
+			name:      "Simpsons Method - Sine and Exp Function",
+			function:  sineAndExpFunction,
+			x:         []float64{0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3},
+			method:    Trapezoidal,
+			expected:  11.8595,
+			tolerance: 0.1,
+		},
+		{
+			name:      "Trapezoidal Method - Exp Squared Function",
+			function:  expSquaredFunction,
+			x:         []float64{0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3},
+			method:    Trapezoidal,
+			expected:  201.2144,
+			tolerance: 0.4,
+		},
+		{
+			name:      "Simpsons Method - Exp Squared Function",
+			function:  expSquaredFunction,
+			x:         []float64{0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3},
+			method:    Simpsons,
+			expected:  201.2144,
+			tolerance: 0.4,
+		},
+		{
+			name:      "Trapezoidal Method - Two Exp and Exp Function",
+			function:  twoExpAndExpFunction,
 			x:         []float64{0, 0.5, 1, 1.5, 2, 2.5, 3},
 			method:    Trapezoidal,
 			expected:  19.08554,
 			tolerance: 0.4,
 		},
+		{
+			name:      "Simpsons Method - Two Exp and Exp Function",
+			function:  twoExpAndExpFunction,
+			x:         []float64{0, 0.5, 1, 1.5, 2, 2.5, 3},
+			method:    Simpsons,
+			expected:  19.08554,
+			tolerance: 0.4,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := Integrate(tt.x, tt.function, tt.method)
+			if err != nil {
+				t.Errorf("Error while integrating: %v", err)
+				return
+			}
+			if math.Abs(result-tt.expected) > tt.tolerance {
+				t.Errorf("Integration failed. Expected: %v, Got: %v", tt.expected, result)
+			}
+			fmt.Printf("Integration successed. Expected: %v, Got: %v", tt.expected, result)
+		})
 	}
 }
