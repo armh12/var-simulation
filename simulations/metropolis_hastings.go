@@ -2,8 +2,8 @@ package simulations
 
 import (
 	"fmt"
+	"var-simulation/math_utils"
 	"var-simulation/types"
-	"var-simulation/utils"
 )
 
 type MetropolisHastingSimulation struct {
@@ -25,7 +25,7 @@ func NewMetropolisHastingSimulation[T types.Number](targetDistribution, proposal
 }
 
 func (m *MetropolisHastingSimulation) selectTrialPoint(x float64) (*float64, error) {
-	randomNumber, err := utils.PseudoNumberGenerator(-m.Delta, m.Delta)
+	randomNumber, err := math_utils.PseudoNumberGenerator(-m.Delta, m.Delta)
 	if err != nil {
 		return nil, fmt.Errorf("error while generating random number")
 	}
@@ -53,7 +53,7 @@ func (m *MetropolisHastingSimulation) Simulate(nPoints int) ([]float64, error) {
 	samples := make([]float64, 0, nPoints)
 	var acceptedPoints int
 
-	x, err := utils.PseudoNumberGenerator(m.LowerLimit, m.UpperLimit)
+	x, err := math_utils.PseudoNumberGenerator(m.LowerLimit, m.UpperLimit)
 	if err != nil {
 		return nil, fmt.Errorf("error generating initial random point")
 	}
@@ -73,7 +73,7 @@ func (m *MetropolisHastingSimulation) Simulate(nPoints int) ([]float64, error) {
 			x = *trialPoint
 			acceptedPoints++
 		} else {
-			randomNumber, err := utils.PseudoNumberGenerator(0, 1)
+			randomNumber, err := math_utils.PseudoNumberGenerator(0, 1)
 			if err != nil {
 				return nil, fmt.Errorf("error generating random number for acceptance check: %v", err)
 			}
