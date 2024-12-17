@@ -6,7 +6,14 @@ import (
 	"testing"
 )
 
-func TestUserInputFunctions(t *testing.T) {
+func concatMaps(m1, m2 map[string]interface{}) map[string]interface{} {
+	for k, v := range m2 {
+		m1[k] = v
+	}
+	return m1
+}
+
+func TestUserInputBasicFunctions(t *testing.T) {
 	tests := []struct {
 		stringFunction   string
 		expectedFunction func(x float64) float64
@@ -42,12 +49,11 @@ func TestUserInputFunctions(t *testing.T) {
 		if err != nil {
 			t.Errorf("Error parsing user input: %v", err)
 		}
+		parseEnv := GetEnvironmentForParse()
 		runEnv := map[string]interface{}{
-			"x":   1.0,
-			"sin": math.Sin,
-			"cos": math.Cos,
-			"exp": math.Exp,
+			"x": 1.0,
 		}
+		runEnv = concatMaps(runEnv, parseEnv)
 		result, err := expr.Run(program, runEnv)
 		if err != nil {
 			t.Errorf("Error running user input: %v", err)
@@ -56,4 +62,13 @@ func TestUserInputFunctions(t *testing.T) {
 			t.Errorf("Expected %v, got %v", test.expectedFunction(1.0), result)
 		}
 	}
+}
+
+func TestUserComplexFunctions(t *testing.T) {
+	//tests := []struct {
+	//	stringFunction string
+	//	expectedFunction func (float64) float64
+	//}{
+	//	//
+	//}
 }

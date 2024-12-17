@@ -5,18 +5,23 @@ import (
 	"github.com/expr-lang/expr"
 	"github.com/expr-lang/expr/vm"
 	"math"
+	"var-simulation/types"
 )
+
+func ParseNumber[T types.Number](num T) float64 {
+	return float64(num)
+}
 
 func GetEnvironmentForParse() map[string]interface{} {
 	return map[string]interface{}{
 		// base functions
 		"sqrt": math.Sqrt,
-		"log":  math.Log,
-		"log2": math.Log2,
+		"log":  Log,
 		// trigonometric and reverse trigonometric functions
 		"sin":  math.Sin,
 		"cos":  math.Cos,
 		"tan":  math.Tan,
+		"ctan": CTan,
 		"asin": math.Asin,
 		"acos": math.Acos,
 		"atan": math.Atan,
@@ -25,8 +30,8 @@ func GetEnvironmentForParse() map[string]interface{} {
 		"cosh": math.Cosh,
 		"tanh": math.Tanh,
 		// exponential
-		"exp":  math.Exp,
-		"exp2": math.Exp2,
+		"exp":    math.Exp,
+		"expNum": ExpFunc,
 	}
 }
 
