@@ -13,33 +13,52 @@ import (
 	"var-simulation/types"
 )
 
-func AppGUI() {
-	simApp := app.New()
-	mainWindow := simApp.NewWindow("Variable Simulation")
-
+func simTypeSelection() *widget.Select {
 	simTypeSelect := widget.NewSelect([]string{
 		"Metropolis-Hastings Advanced",
 		"Monte-Carlo",
 	}, func(value string) {
 		log.Println("Simulation selected:", value)
 	})
-	simTypeSelect.SetSelected("Metropolis-Hastings") // по умолчанию
+	simTypeSelect.SetSelected("Metropolis-Hastings")
+	return simTypeSelect
+}
 
-	targetDistSelect := widget.NewSelect([]string{
+func distributionSelection(distributionType string) *widget.Select {
+	distributionNames := []string{
 		"Normal(μ, σ)",
 		"Uniform(a, b)",
-	}, func(value string) {
-		log.Println("Target distribution selected:", value)
-	})
-	targetDistSelect.SetSelected("Normal(μ, σ)")
+		"Cauchy(location, scale)",
+		"LogNormal(mean, stdDev)",
+		"Exponential(mean)",
+		"Weibull(scale, shape)",
+		"Pareto(scale, shape)",
+		"Gamma(shape, scale)",
+	}
+	DistSelect := widget.NewSelect(distributionNames, distributionFormSelector)
+	DistSelect.SetSelected("Normal(μ, σ)")
+	return DistSelect
+}
 
-	proposalDistSelect := widget.NewSelect([]string{
-		"Normal(μ, σ)",
-		"Uniform(a, b)",
-	}, func(value string) {
-		log.Println("Proposal distribution selected:", value)
-	})
-	proposalDistSelect.SetSelected("Normal(μ, σ)")
+func mhInputValuesForm(deltaEntry, lowerLimitEntry, upperLimitEntry, numOfSamplesEntry *widget.Entry) *widget.Form {
+	form := &widget.Form{
+		Items: []*widget.FormItem{
+			{Text: "Delta:", Widget: deltaEntry},
+			{Text: "Lower limit:", Widget: lowerLimitEntry},
+			{Text: "Upper limit:", Widget: upperLimitEntry},
+			{Text: "Iteration Count:", Widget: numOfSamplesEntry},
+		},
+	}
+	return form
+}
+
+func AppGUI() {
+	simApp := app.New()
+	mainWindow := simApp.NewWindow("Variable Simulation")
+
+	simTypeSelect := simTypeSelection()
+	targetDistSelect := distributionSelection("Target")
+	proposalDistSelect := distributionSelection("Proposal")
 
 	topBar := container.NewGridWithColumns(3,
 		simTypeSelect,
@@ -59,26 +78,20 @@ func AppGUI() {
 	numOfSamplesEntry := widget.NewEntry()
 	numOfSamplesEntry.SetText("1000")
 
-	form := &widget.Form{
-		Items: []*widget.FormItem{
-			{Text: "Delta:", Widget: deltaEntry},
-			{Text: "Lower limit:", Widget: lowerLimitEntry},
-			{Text: "Upper limit:", Widget: upperLimitEntry},
-			{Text: "Количество итераций:", Widget: numOfSamplesEntry},
-		},
-	}
+	form := mhInputValuesForm(deltaEntry, lowerLimitEntry, upperLimitEntry, numOfSamplesEntry)
 
-	placeholderGraph1 := canvas.NewText("First Graph", nil)
-	placeholderGraph2 := canvas.NewText("Second Graph", nil)
+	placeholderHist := canvas.NewText("Histogram", nil)
+	placeholderTrace := canvas.NewText("Trace Plot", nil)
+	placeholderRunningMean := canvas.NewText("Running Mean", nil)
 
-	tabContainer := container.NewAppTabs(
-		container.NewTabItem("График 1", container.NewCenter(placeholderGraph1)),
-		container.NewTabItem("График 2", container.NewCenter(placeholderGraph2)),
+	graphContainer := container.NewAppTabs(
+		container.NewTabItem("Histogram", container.NewCenter(placeholderHist)),
+		container.NewTabItem("Trace Plot", container.NewCenter(placeholderTrace)),
+		container.NewTabItem("Running Mean", container.NewCenter(placeholderRunningMean)),
 	)
-	tabContainer.SetTabLocation(container.TabLocationBottom)
+	graphContainer.SetTabLocation(container.TabLocationBottom)
 
 	simulateButton := widget.NewButton("Simulate", func() {
-		// 1) Считываем параметры (в реальном коде делайте валидацию, обработку ошибок)
 		deltaVal, err := strconv.ParseFloat(deltaEntry.Text, 64)
 		if err != nil {
 			dialog.ShowError(fmt.Errorf("Not correct delta value: %v", err), mainWindow)
@@ -125,16 +138,16 @@ func AppGUI() {
 			}
 
 			func() {
-				placeholderGraph1.Text = fmt.Sprintf("Simulation Ready!\nResults: %d\nExample: %.4f ...",
+				placeholderHist.Text = fmt.Sprintf("Simulation Ready!\nResults: %d\nExample: %.4f ...",
 					len(results), results[0])
-				placeholderGraph1.Refresh()
+				placeholderHist.Refresh()
 			}()
 		}()
 	})
 
 	centerSplit := container.NewHSplit(
 		form,
-		tabContainer,
+		graphContainer,
 	)
 	centerSplit.SetOffset(0.3)
 
@@ -147,6 +160,6 @@ func AppGUI() {
 	)
 
 	mainWindow.SetContent(mainContent)
-	mainWindow.Resize(fyne.NewSize(800, 600))
+	mainWindow.Resize(fyne.NewSize(1920, 1080))
 	mainWindow.ShowAndRun()
 }
