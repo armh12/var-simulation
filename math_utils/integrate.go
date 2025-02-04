@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"gonum.org/v1/gonum/integrate"
 	"sort"
-	"var-simulation/types"
 )
 
 type IntegrateMethod int
@@ -15,7 +14,7 @@ const (
 	Simpsons
 )
 
-func Integrate(x []float64, f types.Function, method IntegrateMethod) (float64, error) {
+func Integrate(x []float64, f func(float64) float64, method IntegrateMethod) (float64, error) {
 	x = sortSlice(x)
 	switch method {
 	case Trapezoidal:
@@ -27,19 +26,19 @@ func Integrate(x []float64, f types.Function, method IntegrateMethod) (float64, 
 	}
 }
 
-func integrateSimpsons(x []float64, f types.Function) float64 {
+func integrateSimpsons(x []float64, f func(float64) float64) float64 {
 	funcValues := getFunctionValues(x, f)
 	integrateResult := integrate.Simpsons(x, funcValues)
 	return integrateResult
 }
 
-func integrateTrapezoidal(x []float64, f types.Function) float64 {
+func integrateTrapezoidal(x []float64, f func(float64) float64) float64 {
 	funcValues := getFunctionValues(x, f)
 	integrateResult := integrate.Trapezoidal(x, funcValues)
 	return integrateResult
 }
 
-func getFunctionValues(x []float64, f types.Function) []float64 {
+func getFunctionValues(x []float64, f func(float64) float64) []float64 {
 	xSliceCapacity := cap(x)
 	ySlice := make([]float64, xSliceCapacity)
 

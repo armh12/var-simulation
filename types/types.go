@@ -6,4 +6,4 @@ type Number interface {
 	constraints.Integer | constraints.Float
 }
 
-type Function func(float64) float64
+type Function func() float64

@@ -5,17 +5,7 @@ import (
 	"math/rand"
 )
 
-type DistributionType int
-
-const (
-	Gaussian DistributionType = iota
-	Uniform
-	Cauchy
-	LogNormal
-	Exponential
-	Weibull
-	Pareto
-)
+type DistributionFunc func(x float64) float64
 
 type Distributions struct{}
 

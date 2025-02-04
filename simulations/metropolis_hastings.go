@@ -7,14 +7,14 @@ import (
 )
 
 type MetropolisHastingSimulation struct {
-	TargetDistribution   types.Function
-	ProposalDistribution types.Function
+	TargetDistribution   func(float64) float64
+	ProposalDistribution func(float64) float64
 	Delta                float64
 	LowerLimit           float64
 	UpperLimit           float64
 }
 
-func NewMetropolisHastingSimulation[T types.Number](targetDistribution, proposalDistribution types.Function, delta, lowerLimit, upperLimit T) *MetropolisHastingSimulation {
+func NewMetropolisHastingSimulation[T types.Number](targetDistribution, proposalDistribution func(float64) float64, delta, lowerLimit, upperLimit T) *MetropolisHastingSimulation {
 	return &MetropolisHastingSimulation{
 		TargetDistribution:   targetDistribution,
 		ProposalDistribution: proposalDistribution,

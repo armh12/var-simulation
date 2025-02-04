@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math"
 	"testing"
-	"var-simulation/types"
 )
 
 // Define test functions for integration
@@ -23,7 +22,7 @@ func expFunction(x float64) float64 {
 func TestBasicFunctionsIntegration(t *testing.T) { // do not use Trapezoidal, use Simpsons in code
 	tests := []struct {
 		name      string
-		function  types.Function
+		function  func(float64) float64
 		x         []float64
 		method    IntegrateMethod
 		expected  float64
@@ -146,7 +145,7 @@ func twoExpAndExpFunction(x float64) float64 {
 func TestComplexFunctionsIntegration(t *testing.T) {
 	tests := []struct {
 		name      string
-		function  types.Function
+		function  func(float64) float64
 		x         []float64
 		method    IntegrateMethod
 		expected  float64

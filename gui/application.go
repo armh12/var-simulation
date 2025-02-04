@@ -8,57 +8,20 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
-	"log"
 	"strconv"
-	"var-simulation/types"
 )
-
-func simTypeSelection() *widget.Select {
-	simTypeSelect := widget.NewSelect([]string{
-		"Metropolis-Hastings Advanced",
-		"Monte-Carlo",
-	}, func(value string) {
-		log.Println("Simulation selected:", value)
-	})
-	simTypeSelect.SetSelected("Metropolis-Hastings")
-	return simTypeSelect
-}
-
-func distributionSelection(distributionType string) *widget.Select {
-	distributionNames := []string{
-		"Normal(μ, σ)",
-		"Uniform(a, b)",
-		"Cauchy(location, scale)",
-		"LogNormal(mean, stdDev)",
-		"Exponential(mean)",
-		"Weibull(scale, shape)",
-		"Pareto(scale, shape)",
-		"Gamma(shape, scale)",
-	}
-	DistSelect := widget.NewSelect(distributionNames, distributionFormSelector)
-	DistSelect.SetSelected("Normal(μ, σ)")
-	return DistSelect
-}
-
-func mhInputValuesForm(deltaEntry, lowerLimitEntry, upperLimitEntry, numOfSamplesEntry *widget.Entry) *widget.Form {
-	form := &widget.Form{
-		Items: []*widget.FormItem{
-			{Text: "Delta:", Widget: deltaEntry},
-			{Text: "Lower limit:", Widget: lowerLimitEntry},
-			{Text: "Upper limit:", Widget: upperLimitEntry},
-			{Text: "Iteration Count:", Widget: numOfSamplesEntry},
-		},
-	}
-	return form
-}
 
 func AppGUI() {
 	simApp := app.New()
 	mainWindow := simApp.NewWindow("Variable Simulation")
 
 	simTypeSelect := simTypeSelection()
-	targetDistSelect := distributionSelection("Target")
-	proposalDistSelect := distributionSelection("Proposal")
+
+	targetDistParams := newDistParamsWidgets()
+	proposalDistParams := newDistParamsWidgets()
+
+	targetDistSelect := distributionSelection("Target", targetDistParams)
+	proposalDistSelect := distributionSelection("Proposal", proposalDistParams)
 
 	topBar := container.NewGridWithColumns(3,
 		simTypeSelect,
@@ -113,12 +76,8 @@ func AppGUI() {
 			return
 		}
 
-		targetFunc := types.Function(func(x float64) float64 {
-			return 1.0
-		})
-		proposalFunc := types.Function(func(x float64) float64 {
-			return 1.0
-		})
+		targetFunc := getDistributionFunction(targetDistSelect, targetDistParams, mainWindow)
+		proposalFunc := getDistributionFunction(proposalDistSelect, proposalDistParams, mainWindow)
 
 		go func() {
 			results, err := SimulateMH(
@@ -138,28 +97,59 @@ func AppGUI() {
 			}
 
 			func() {
-				placeholderHist.Text = fmt.Sprintf("Simulation Ready!\nResults: %d\nExample: %.4f ...",
-					len(results), results[0])
+				placeholderHist.Text = fmt.Sprintf(
+					"Simulation Ready!\nResults: %d\nExample: %.4f ...",
+					len(results), results[0],
+				)
 				placeholderHist.Refresh()
 			}()
 		}()
 	})
 
+	plotTargetButton := widget.NewButton("Plot Target Dist", func() {
+		plotDistribution(mainWindow, "Target", targetDistSelect, targetDistParams)
+	})
+	plotProposalButton := widget.NewButton("Plot Proposal Dist", func() {
+		plotDistribution(mainWindow, "Proposal", proposalDistSelect, proposalDistParams)
+	})
+
+	// Собираем форму с параметрами дистрибуции для Target и Proposal + кнопки
+	targetDistBox := container.NewVBox(
+		widget.NewLabel("Target Distribution Parameters"),
+		targetDistParams.form,
+		plotTargetButton,
+	)
+
+	proposalDistBox := container.NewVBox(
+		widget.NewLabel("Proposal Distribution Parameters"),
+		proposalDistParams.form,
+		plotProposalButton,
+	)
 	centerSplit := container.NewHSplit(
 		form,
 		graphContainer,
 	)
 	centerSplit.SetOffset(0.3)
+	bottomBox := container.NewGridWithColumns(2,
+		targetDistBox,
+		proposalDistBox,
+	)
 
 	mainContent := container.NewBorder(
-		topBar,         // top
-		simulateButton, // bottom
-		nil,            // left
-		nil,            // right
-		centerSplit,    // center
+		topBar,    // top
+		bottomBox, // bottom
+		nil,       // left
+		nil,       // right
+		container.NewBorder(
+			nil,
+			simulateButton, // под формой MH будет кнопка Simulate
+			nil,
+			nil,
+			centerSplit,
+		),
 	)
 
 	mainWindow.SetContent(mainContent)
-	mainWindow.Resize(fyne.NewSize(1920, 1080))
+	mainWindow.Resize(fyne.NewSize(1280, 720))
 	mainWindow.ShowAndRun()
 }
